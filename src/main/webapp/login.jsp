@@ -1,88 +1,113 @@
-<!DOCTYPE html>
-<html lang="en">
+<%@ page import="org.example.logindemojsp.DAO.UserDAO" %>
+<%@ page import="org.example.logindemojsp.DatabaseConnection" %>
+<%@ page import="org.example.logindemojsp.Model.User" %>
+
+<%
+  String username = request.getParameter("username");
+  String password = request.getParameter("password");
+  String errorMessage = null;
+
+  if (username != null && password != null) {
+    try {
+      UserDAO userDAO = new UserDAO(DatabaseConnection.getConnection());
+      User user = userDAO.getUserByUsernameAndPassword(username, password);
+
+      if (user != null) {
+        errorMessage = "Login success";
+      } else {
+        errorMessage = "Invalid username or password";
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      errorMessage = "Something went wrong. Please try again.";
+    }
+  }
+%>
+
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
+      background-color: #f2f2f2;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
     }
-    .login-container {
-      background-color: white;
+    .container {
+      background-color: #fff;
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      width: 400px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 300px;
     }
-    h1 {
+    h2 {
       text-align: center;
       color: #333;
     }
     label {
       display: block;
       margin-bottom: 8px;
-      color: #555;
+      color: #333;
     }
-    input[type="text"],
-    input[type="password"] {
+    input[type="text"], input[type="password"], input[type="submit"] {
       width: 100%;
       padding: 10px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       border: 1px solid #ccc;
-      border-radius: 5px;
+      border-radius: 4px;
     }
     input[type="submit"] {
-      width: 100%;
-      padding: 10px;
       background-color: #4CAF50;
-      border: none;
-      border-radius: 5px;
       color: white;
-      font-size: 16px;
+      border: none;
       cursor: pointer;
     }
     input[type="submit"]:hover {
       background-color: #45a049;
     }
-    .forgot-password {
-      display: block;
+    .message {
       text-align: center;
-      margin-top: 15px;
-      color: #007BFF;
-      text-decoration: none;
+      color: green;
     }
-    .forgot-password:hover {
-      text-decoration: underline;
-    }
-    .error-message {
+    .errorMessage {
+      text-align: center;
       color: red;
+    }
+    .links {
       text-align: center;
+    }
+    .links a {
+      text-decoration: none;
+      color: #4CAF50;
+      margin: 0 10px;
     }
   </style>
 </head>
 <body>
-<div class="login-container">
-  <h1>Login</h1>
-  <form action="login" method="post">
+<div class="container">
+  <h2>Login</h2>
+  <% if (errorMessage != null) { %>
+  <div class="errorMessage"><%= errorMessage %></div>
+  <% } %>
+
+  <form action="login.jsp" method="post">
     <label for="username">Username:</label>
-    <input type="text" id="username" name="username">
+    <input type="text" id="username" name="username" required><br><br>
+
     <label for="password">Password:</label>
-    <input type="password" id="password" name="password">
+    <input type="password" id="password" name="password" required><br><br>
+
     <input type="submit" value="Login">
   </form>
-  <a href="forgot_password.jsp" class="forgot-password">Forgot Password?</a>
-  <%
-    if (request.getAttribute("errorMessage") != null) {
-      out.println("<p class='error-message'>" + request.getAttribute("errorMessage") + "</p>");
-    }
-  %>
+
+  <div class="links">
+    <a href="forgot_password.jsp">Forgot Password</a>
+    <a href="register.jsp">Sign Up</a>
+  </div>
 </div>
 </body>
 </html>

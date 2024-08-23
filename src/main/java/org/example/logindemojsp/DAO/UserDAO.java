@@ -43,6 +43,22 @@ public class UserDAO {
         }
         return null;
     }
+    public User getUserByUsername(String userName) throws SQLException {
+        String query = "SELECT * FROM Users WHERE username = ?";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, userName);
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            User user = new User();
+            user.setId(rs.getInt("id"));
+            user.setUsername(rs.getString("username"));
+            user.setPassword(rs.getString("password"));
+            user.setEmail(rs.getString("email"));
+            return user;
+        }
+        return null;
+    }
 
     public void createUser(User user) throws SQLException {
         String query = "INSERT INTO Users (username, password, email) VALUES (?, ?, ?)";
@@ -52,5 +68,20 @@ public class UserDAO {
         stmt.setString(3, user.getEmail());
         stmt.executeUpdate();
     }
+
+    public boolean saveUser(User user) throws SQLException {
+        String query = "INSERT INTO Users (username, password, email) VALUES (?, ?, ?)";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, user.getUsername());
+        stmt.setString(2, user.getPassword());
+        stmt.setString(3, user.getEmail());
+
+        int rowsInserted = stmt.executeUpdate();
+
+        return rowsInserted > 0; // Returns true if the user was successfully inserted
+    }
+
+
+
 
 }

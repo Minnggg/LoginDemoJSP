@@ -1,11 +1,10 @@
 <%@ page import="org.example.logindemojsp.DAO.UserDAO" %>
 <%@ page import="org.example.logindemojsp.DatabaseConnection" %>
 <%@ page import="org.example.logindemojsp.Model.User" %>
-<%@ page import="java.util.UUID" %>
 
 <html>
 <head>
-    <title>Forgot Password</title>
+    <title>Sign Up</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -32,7 +31,7 @@
             margin-bottom: 8px;
             color: #333;
         }
-        input[type="email"], input[type="submit"] {
+        input[type="text"], input[type="password"], input[type="email"], input[type="submit"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
@@ -60,29 +59,42 @@
 </head>
 <body>
 <div class="container">
-    <h2>Forgot Password</h2>
-    <form action="forgot_password.jsp" method="post">
-        <label for="email">Enter your email:</label>
-        <input type="email" id="email" name="email" required><br><br>
-        <input type="submit" value="Submit">
+    <h2>Sign Up</h2>
+    <form action="register.jsp" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+
+        <input type="submit" value="Sign Up">
     </form>
 
     <%
+        String username = request.getParameter("username");
         String email = request.getParameter("email");
+        String password = request.getParameter("password");
         String message = null;
         String errorMessage = null;
 
-        if (email != null) {
+        if (username != null && email != null && password != null) {
             try {
                 UserDAO userDAO = new UserDAO(DatabaseConnection.getConnection());
-                User user = userDAO.getUserByEmail(email);
+                User existingUser = userDAO.getUserByUsername(username);
 
-                if (user != null) {
-                    String token = UUID.randomUUID().toString();
-                    // Gửi email với token
-                    message = "Check your email to reset your password";
+                if (existingUser == null) {
+                    User newUser = new User();
+                    newUser.setUsername(username);
+                    newUser.setEmail(email); // Set the email field
+                    newUser.setPassword(password);
+
+                    userDAO.saveUser(newUser);
+                    message = "Registration successful! You can now log in.";
                 } else {
-                    errorMessage = "Email not found";
+                    errorMessage = "Username already exists. Please choose another.";
                 }
             } catch (Exception e) {
                 e.printStackTrace();
